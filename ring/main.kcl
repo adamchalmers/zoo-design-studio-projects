@@ -1,0 +1,30 @@
+band = startSketchOn(XY)
+  |> circle(diameter = 20, center = [0, -200])
+  |> revolve(axis = X)
+  |> appearance(color = "#ff8800", metalness = 100, roughness = 30)
+
+// Gem parameters
+small = 10
+big = 60
+height = 50
+
+// Lower square of the gem
+lower = startSketchOn(XY)
+  |> startProfile(at = [-small/2, -small/2])
+  |> xLine(length = small)
+  |> yLine(length = small)
+  |> xLine(length = -small)
+  |> yLine(length = -small)
+  |> close()
+
+// Upper edge of the gem
+upper = startSketchOn(offsetPlane(XY, offset = height))
+  |> startProfile(at = [-big/2, -big/2])
+  |> xLine(length = big, tag = $a)
+  |> yLine(length = big)
+  |> xLine(length = -big)
+  |> yLine(length = -big)
+  |> close()
+loft([lower, upper])
+  |> translate(z = 200)
+  |> appearance(color = "#8888ff", roughness = 40, metalness = 10)

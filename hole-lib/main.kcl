@@ -1,0 +1,24 @@
+@settings(defaultLengthUnit = cm)
+
+import counterbore, flat, countersink, holeProfile, drill, blind, hole from "hole_lib.kcl"
+
+
+
+// This is my hole, it was made for me
+myHole = holeProfile(
+  bottom = flat(),
+  body = blind(depth = 4, diameter = 4),
+  holeType = countersink(diameter = 5, angle = 88deg),
+)
+// |> revolveHole()
+
+cubeLen = 9
+bigCube = startSketchOn(XY)
+  |> startProfile(at = [-cubeLen / 2, -cubeLen / 2])
+  |> line(end = [cubeLen, 0], tag = $a)
+  |> line(end = [0, cubeLen], tag = $b)
+  |> line(end = [-cubeLen, 0], tag = $c)
+  |> line(end = [0, -cubeLen], tag = $d)
+  |> close()
+  |> extrude(length = cubeLen, symmetric = true)
+  |> hole(face = END, hole = myHole)

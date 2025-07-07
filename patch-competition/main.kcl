@@ -1,0 +1,27 @@
+x = 333.2
+y = true
+z = "adam"
+
+fn f(x: number, y: number) {
+  return 33
+}
+
+// foo
+st = [3, 3]
+mySketch = startSketchOn(XY)
+|> startProfile(at = st)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

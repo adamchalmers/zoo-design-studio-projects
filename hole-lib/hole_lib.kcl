@@ -1,0 +1,208 @@
+// Tops
+
+import cross, dot, magnitude, normalize from "vectors.kcl"
+
+
+holeTypeSimple = 0
+holeTypeCounterbore = 1
+holeTypeCountersink = 2
+
+export fn simple() {
+  return { feature = simple }
+}
+
+export fn counterbore(diameter, depth) {
+  return {
+    diameter = diameter,
+    depth = depth,
+    feature = holeTypeCounterbore
+  }
+}
+
+export fn countersink(diameter, angle) {
+  return {
+    diameter = diameter,
+    angle = angle,
+    feature = holeTypeCountersink
+  }
+}
+
+// Bodies
+
+
+export fn blind(depth, diameter) {
+  return {
+    blindDepth = depth,
+    diameter = diameter
+  }
+}
+
+// Ends
+
+
+export fn drill(pointAngle) {
+  return { drillBitAngle = pointAngle }
+}
+
+export fn flat() {
+  return { drillBitAngle = 179.99deg }
+}
+
+// Defining the hole
+
+
+fn drawTop(@partialHoleProfile, body, holeType) {
+  prof = if holeType.feature == holeTypeSimple {
+    partialHoleProfile
+      |> yLine(length = body.diameter)
+  } else if holeType.feature == holeTypeCounterbore {
+    lip = (holeType.diameter - body.diameter) / 2
+    partialHoleProfile
+      |> xLine(length = holeType.depth)
+      |> yLine(length = holeType.diameter / 2)
+      |> xLine(length = -holeType.depth)
+      |> yLine(length = -lip)
+  } else if holeType.feature == holeTypeCountersink {
+    t = holeType.angle / 2
+    tr = holeType.diameter / 2
+    br = body.diameter / 2
+    assert(tr, isGreaterThan = br, error = "Diameter of the countersink must be greater than diameter of the hole's body")
+    // Ugly trigonometry that I calculated with pen and paper
+    up = (tr - br) / tan(t)
+    b = br / tan(t)
+    diag = (up + b) / cos(t) - (2 / (tan(t) * cos(t)))
+    alpha = 90 - t
+    partialHoleProfile
+      |> xLine(length = up)
+      |> yLine(length = tr)
+      |> angledLine(length = diag, angle = 270 - alpha)
+  } else {
+    assert(holeType.feature, isLessThanOrEqual = holeTypeCountersink, error = "unknown holeType feature")
+  }
+  return prof
+}
+
+
+fn holeTypeHeight(body, holeType) {
+  height = if holeType.feature == holeTypeSimple {
+    0
+  } else if holeType.feature == holeTypeCounterbore {
+    holeType.depth
+  } else if holeType.feature == holeTypeCountersink {
+    t = holeType.angle / 2
+    tr = holeType.diameter / 2
+    br = body.diameter / 2
+    // Ugly trigonometry that I calculated with pen and paper
+    up = (tr - br) / tan(t)
+    up
+  } else {
+    assert(holeType.feature, isLessThanOrEqual = holeTypeCountersink, error = "unknown holeType feature")
+  }
+  return height
+}
+
+
+// Actually defining a hole
+
+// v2 is the X axis by convention, but cannot coerce properly
+// so must give it manually.
+conventionalAxisV2 = [1, 0, 0]
+conventionalAxis = X
+conventionalPlane = XY
+
+export fn holeProfile(bottom, body, holeType) {
+
+  // Calculate the drill bit height
+  radius = body.diameter / 2
+  theta = bottom.drillBitAngle / 2
+  drillHeight = radius / tan(theta)
+
+
+  // Calculate total model height from holeType to bottom
+  hBody = body.blindDepth
+  hBott = drillHeight
+  totalHeight = hBody + hBott + holeTypeHeight(body, holeType)
+  
+  return startSketchOn(conventionalPlane)
+    |> startProfile(at = [-totalHeight, 0])
+    // Drill profile
+    |> xLine(length = drillHeight)
+    // Body depth
+    |> xLine(length = body.blindDepth)
+    // Top
+    |> drawTop(body, holeType)
+    // Body depth
+    |> xLine(length = -body.blindDepth)
+    // // Drill profile
+    |> line(endAbsolute = [profileStartX(%), profileStartY(%)])
+    |> close()
+}
+
+export fn revolveHole(@holeProfile) {
+  return holeProfile
+    |> revolve(axis = conventionalAxis)
+    |> appearance(color = "#ff0000")
+}
+
+fn rotateToFace(solid, face) {
+  targetPlane = planeOf(solid, face)
+  targetPlaneNormal = cross(
+    v1 = targetPlane.xAxis,
+    v2 = targetPlane.yAxis,
+  )
+
+  tn = cross(v1 = conventionalAxisV2, v2 = targetPlaneNormal)
+  targetNormal = [
+    tn[0]: number(mm),
+    tn[1]: number(mm),
+    tn[2]: number(mm)
+  ]: Point3d
+  
+  dotProd = dot(
+    v1 = normalize(targetPlaneNormal),
+    v2 = normalize(conventionalAxisV2),
+  ): number(_)
+  
+  rot = if magnitude(targetNormal) == 0 {
+    if acos(dotProd) == 180deg {
+      { axis = [0, 1, 0]
+      , angle = 180deg
+      , translateDist = targetPlane.origin
+      , targetPlaneNormal
+      }
+    } else {
+      { axis = [1, 0, 0]
+      , angle = 0
+      , translateDist = targetPlane.origin
+      , targetPlaneNormal
+      }
+    }
+  } else {
+    { axis = targetNormal
+    , angle = acos(dotProd)
+    , translateDist = targetPlane.origin
+    , targetPlaneNormal
+    }
+  }
+  return rot
+}
+
+
+export fn hole(@solid, face, hole) {
+  rot = rotateToFace(solid, face)
+  mag = magnitude(rot.translateDist)
+  x = (rot.targetPlaneNormal[0] * mag): number(mm)
+  y = (rot.targetPlaneNormal[1] * mag): number(mm)
+  z = (rot.targetPlaneNormal[2] * mag): number(mm)
+  ts = 1
+  toCut = hole
+    |> revolveHole()
+    |> translate(x = x * ts, y = y * ts, z = z * ts)
+    |> rotate(axis = rot.axis, angle = rot.angle)
+    // |> rotate(axis = Y, angle = 180deg, global = true)
+  return subtract(solid, tools = [toCut])
+  // return solid
+}
+
+
+

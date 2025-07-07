@@ -1,0 +1,29 @@
+export fn crossProduct(@vectors) {
+  a = vectors[0]
+  b = vectors[1]
+  x = a[1] * b[2] - (a[2] * b[1])
+  y = a[2] * b[0] - (a[0] * b[2])
+  z = a[0] * b[1] - (a[1] * b[0])
+  return [x, y, z]
+}
+
+export fn crossProductOfPlane(@plane) {
+  return crossProduct([plane.xAxis, plane.yAxis])
+}
+
+mySolid = startSketchOn(XZ)
+  |> polygon(numSides = 3, radius = 2, center = [3, 2])
+  |> extrude(length = 5)
+
+targetPlane = planeOf(mySolid, face = END)
+
+planeInto = {
+  origin = { x = 0, y = 0, z = 0 },
+  xAxis = targetPlane.xAxis,
+  yAxis = crossProduct([targetPlane.xAxis, targetPlane.yAxis])
+}
+startSketchOn(planeInto)
+  |> startProfile(at = [0, 0])
+  |> xLine(length = 3)
+  |> yLine(length = 4)
+  |> line(endAbsolute = profileStart())

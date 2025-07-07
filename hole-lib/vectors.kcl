@@ -1,0 +1,56 @@
+
+// Geo math
+
+
+export fn cross(v1, v2) {
+  return [
+    v1[1] * v2[2] - (v1[2] * v2[1]),
+    v1[2] * v2[0] - (v1[0] * v2[2]),
+    v1[0] * v2[1] - (v1[1] * v2[0])
+  ]
+}
+
+export fn dot(v1, v2) {
+  return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]
+}
+
+export fn magnitude(@v) {
+  return sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
+}
+
+export fn normalize(@v) {
+  len = magnitude(v)
+  return [v[0] / len, v[1] / len, v[2] / len]
+}
+
+fn rot(@M, v) {
+  return [
+    M[0] * v[0] + M[1] * v[1] + M[2] * v[2],
+    M[3] * v[0] + M[4] * v[1] + M[5] * v[2],
+    M[6] * v[0] + M[7] * v[1] + M[8] * v[2]
+  ]
+}
+
+fn angleAxis(angle, axis) {
+  x = axis[0]
+  y = axis[1]
+  z = axis[2]
+  x2 = axis[0] * axis[0]
+  y2 = axis[1] * axis[1]
+  z2 = axis[2] * axis[2]
+
+  c = cos(angle)
+  s = sin(angle)
+
+  return [
+    x2 * (1 - c) + c,
+    x * y * (1 - c) - (z * s),
+    x * z * (1 - c) + y * s,
+    x * y * (1 - c) + z * s,
+    y2 * (1 - c) + c,
+    y * z * (1 - c) - (x * s),
+    x * z * (1 - c) - (y * s),
+    y * z * (1 - c) + x * s,
+    z2 * (1 - c) + c
+  ]
+}

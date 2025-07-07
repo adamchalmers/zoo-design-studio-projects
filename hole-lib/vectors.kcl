@@ -23,7 +23,7 @@ export fn normalize(@v) {
   return [v[0] / len, v[1] / len, v[2] / len]
 }
 
-fn rot(@M, v) {
+export fn matrixRotate(@M, v) {
   return [
     M[0] * v[0] + M[1] * v[1] + M[2] * v[2],
     M[3] * v[0] + M[4] * v[1] + M[5] * v[2],
@@ -31,7 +31,7 @@ fn rot(@M, v) {
   ]
 }
 
-fn angleAxis(angle, axis) {
+export fn angleAxis(angle, axis) {
   x = axis[0]
   y = axis[1]
   z = axis[2]

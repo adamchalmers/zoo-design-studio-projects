@@ -22,3 +22,22 @@ bigCube = startSketchOn(XY)
   |> close()
   |> extrude(length = cubeLen, symmetric = true)
   |> hole(face = END, hole = myHole)
+
+
+
+bigCube2 = startSketchOn(XY)
+  |> startProfile(at = [-cubeLen/2, cubeLen + 1])
+  |> line(end = [cubeLen, 0])
+  |> line(end = [0, cubeLen])
+  |> line(end = [-cubeLen, 0])
+  |> line(end = [0, -cubeLen])
+  |> close()
+  |> extrude(length = cubeLen, symmetric = true)
+  |> hole(
+    face = END,
+    hole = holeProfile(
+        bottom = flat(),
+        body = blind(depth = 4, diameter = 4),
+        holeType = counterbore(diameter = 5, depth = 1cm),
+    )
+  )

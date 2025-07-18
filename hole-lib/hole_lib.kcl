@@ -8,7 +8,7 @@ holeTypeCounterbore = 1
 holeTypeCountersink = 2
 
 export fn simple() {
-  return { feature = simple }
+  return { feature = holeTypeSimple }
 }
 
 export fn counterbore(diameter, depth) {
@@ -122,6 +122,7 @@ export fn holeProfile(bottom, body, holeType) {
   hBody = body.blindDepth
   hBott = drillHeight
   totalHeight = hBody + hBott + holeTypeHeight(body, holeType)
+  assert(totalHeight, isEqualTo = 4, tolerance = 0.001)
   
   return startSketchOn(conventionalPlane)
     |> startProfile(at = [-totalHeight, 0])
@@ -211,45 +212,56 @@ export fn hole(@solid, face, hole, cutAt) {
     // Translate to the origin of the plane
     |> translate(x = x * ts, y = y * ts, z = z * ts)
     |> rotate(axis = rot.axis, angle = rot.angle)
-    |> translate(x = rot.cutAt[0]: number(mm), y = rot.cutAt[1]: number(mm), z = rot.cutAt[2]: number(mm), global = true)
-  // return subtract(solid, tools = [toCut])
+    // |> translate(x = rot.cutAt[0]: number(mm), y = rot.cutAt[1]: number(mm), z = rot.cutAt[2]: number(mm), global = true)
+  return subtract(solid, tools = [toCut])
+  // return solid
+}
+
+
+export fn holes(@solid, face, holeProfiles, cutAt) {
+  rot = rotateToFace(solid, face, cutAt)
+  mag = magnitude(rot.translateDist)
+  x = (rot.targetPlaneNormal[0] * mag): number(mm)
+  y = (rot.targetPlaneNormal[1] * mag): number(mm)
+  z = (rot.targetPlaneNormal[2] * mag): number(mm)
+  ts = 1
+  toCut = holeProfiles
+    |> map(f = fn(@holeProfile) {
+    return revolveHole(holeProfile)
+    // Translate to the origin of the plane
+    |> translate(x = x * ts, y = y * ts, z = z * ts)
+    |> rotate(axis = rot.axis, angle = rot.angle)
+    })
+  // return subtract(solid, tools = toCut)
   return solid
 }
 
+
+// This is my hole, it was made for me
+myHole = holeProfile(
+  bottom = flat(),
+  body = blind(depth = 4, diameter = 0.5),
+  holeType = simple(),
+  // holeType = counterbore(diameter = 5, depth = 1)
+)
+
 cubeLen = 9
 bigCube = startSketchOn(XY)
-  |> startProfile(at = [-cubeLen / 2 + 10, -cubeLen / 2 + 10])
-  |> line(end = [cubeLen, 0], tag = $a)
-  |> line(end = [0, cubeLen], tag = $b)
-  |> line(end = [-cubeLen, 0], tag = $c)
-  |> line(end = [0, -cubeLen], tag = $d)
-  |> close()
+  |> rectangle(width = cubeLen, height = cubeLen, center = [0, 0])
   |> extrude(length = cubeLen, symmetric = true)
-  |> hole(
-    face = a,
-    cutAt = [10, 10],
-    hole = holeProfile(
-      bottom = flat(),
-      body = blind(depth = 4, diameter = 4),
-      holeType = countersink(diameter = 5, angle = 88deg),
-    )
-  )
-
-bigCube2 = startSketchOn(XY)
-  |> startProfile(at = [-cubeLen/2, -cubeLen/2])
-  |> line(end = [cubeLen, 0], tag = $a2)
-  |> line(end = [0, cubeLen], tag = $b2)
-  |> line(end = [-cubeLen, 0], tag = $c2)
-  |> line(end = [0, -cubeLen], tag = $d2)
-  |> close()
-  |> extrude(length = cubeLen, symmetric = true)
-  |> hole(
-    face = a2,
-    hole = holeProfile(
-        bottom = flat(),
-        body = blind(depth = 2, diameter = 4),
-        holeType = counterbore(diameter = 5, depth = 1),
+  // |> hole(face = END, cutAt = [4, 0], hole = myHole)
+  |> holes(
+    face = END,
+    cutAt = [4, 0],
+    holeProfiles = patternLinear2d(
+      myHole,
+      instances = 4,
+      distance = 0.6,
+      axis = [1, 0],
     ),
-    cutAt = [0, 0]
   )
 
+
+
+
+    

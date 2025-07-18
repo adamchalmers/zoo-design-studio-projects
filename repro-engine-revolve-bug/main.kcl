@@ -1,11 +1,4 @@
-sketch001 = startSketchOn(XY)
-profile001 = startProfile(sketch001, at = [0, 0])
-  |> yLine(length = 2.85)
-  |> xLine(length = -1.79)
-  |> angledLine(length = -1.87, angle = 20)
-  |> xLine(length = -5.44)
-  |> yLine(endAbsolute = 0)
-  |> line(endAbsolute = [profileStartX(%), profileStartY(%)])
-  |> close()
-revolve001 = revolve(profile001, angle = 360, axis = X)
-// revolve001 = revolve(profile001, angle = 360, axis = X)
+a = [1in, 0, 0]
+b = [0, 1in, 0]
+c = vector::cross(a, v = b)
+q = vector::cross(a, v = c)

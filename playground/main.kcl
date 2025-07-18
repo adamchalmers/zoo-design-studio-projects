@@ -1,0 +1,17 @@
+@settings(defaultLengthUnit = in)
+
+sketch001 = startSketchOn(-YZ)
+bigTriangle = startProfile(sketch001, at = [-1, -1.16])
+  |> xLine(length = 4.32)
+  |> line(end = [-0.37, 3.38], tag = $outer)
+  |> line(endAbsolute = [profileStartX(%), profileStartY(%)])
+  |> close()
+smallTriangle = startProfile(sketch001, at = [0.14, -0.84])
+  |> line(end = [2.33, 2.13], tag = $seg01)
+  |> line(end = [0.37, -2.03], tag = $inner)
+  |> line(endAbsolute = [profileStartX(%), profileStartY(%)], tag = $seg02)
+  |> close()
+
+out = subtract2d(bigTriangle, tool = smallTriangle)
+extrude001 = extrude(out, length = 5)
+  // |> fillet(radius = 1, tags = [getCommonEdge(faces = [seg01, seg02])])

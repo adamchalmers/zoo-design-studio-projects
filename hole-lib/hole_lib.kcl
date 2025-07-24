@@ -1,8 +1,5 @@
 // Tops
 
-
-import cross, angleAxis, matrixRotate from "vectors.kcl"
-
 holeTypeSimple = 0
 holeTypeCounterbore = 1
 holeTypeCountersink = 2
@@ -54,14 +51,14 @@ export fn flat() {
 fn drawTop(@partialHoleProfile, body, holeType) {
   prof = if holeType.feature == holeTypeSimple {
     partialHoleProfile
-      |> yLine(length = body.diameter)
+      |> xLine(length = body.diameter)
   } else if holeType.feature == holeTypeCounterbore {
     lip = (holeType.diameter - body.diameter) / 2
     partialHoleProfile
-      |> xLine(length = holeType.depth)
-      |> yLine(length = holeType.diameter / 2)
-      |> xLine(length = -holeType.depth)
-      |> yLine(length = -lip)
+      |> yLine(length = holeType.depth)
+      |> xLine(length = holeType.diameter / 2)
+      |> yLine(length = -holeType.depth)
+      |> xLine(length = -lip)
   } else if holeType.feature == holeTypeCountersink {
     t = holeType.angle / 2
     tr = holeType.diameter / 2
@@ -73,8 +70,8 @@ fn drawTop(@partialHoleProfile, body, holeType) {
     diag = (up + b) / cos(t) - (2 / (tan(t) * cos(t)))
     alpha = 90 - t
     partialHoleProfile
-      |> xLine(length = up)
-      |> yLine(length = tr)
+      |> yLine(length = up)
+      |> xLine(length = tr)
       |> angledLine(length = diag, angle = 270 - alpha)
   } else {
     assert(holeType.feature, isLessThanOrEqual = holeTypeCountersink, error = "unknown holeType feature")
@@ -102,13 +99,7 @@ up
 
 // Actually defining a hole
 
-// v2 is the X axis by convention, but cannot coerce properly
-// so must give it manually.
-conventionalAxisV2 = [1, 0, 0]
-conventionalAxis = X
-conventionalPlane = XY
-
-export fn holeProfile(bottom, body, holeType) {
+export fn sketchHoleProfile(@sketchOn, bottom, body, holeType, shift) {
   // Calculate the drill bit height
   radius = body.diameter / 2
   theta = bottom.drillBitAngle / 2
@@ -118,85 +109,42 @@ export fn holeProfile(bottom, body, holeType) {
   hBody = body.blindDepth
   hBott = drillHeight
   totalHeight = hBody + hBott + holeTypeHeight(body, holeType)
-  return startSketchOn(conventionalPlane)
-    |> startProfile(at = [-totalHeight, 0])
+  sk = startProfile(sketchOn, at = [shift, -totalHeight])
     // Drill profile
-    |> xLine(length = drillHeight)
+    |> yLine(length = drillHeight)
     // Body depth
-    |> xLine(length = body.blindDepth)
+    |> yLine(length = body.blindDepth, tag = $d)
     // Top
     |> drawTop(body, holeType)
     // Body depth
-    |> xLine(length = -body.blindDepth)
+    |> yLine(length = -body.blindDepth)
     // // Drill profile
     |> line(endAbsolute = [profileStartX(%), profileStartY(%)])
     |> close()
+    return {sk, d}
 }
 
-export fn revolveHole(@holeProfile) {
+export fn revolveHole(@holeProfile, edge) {
   return holeProfile
-    |> revolve(axis = conventionalAxis)
+    |> revolve(axis = edge)
     |> appearance(color = "#ff0000")
 }
 
-fn rotateToFace(solid, face) {
-  targetPlane = planeOf(solid, face)
-  targetPlaneNormal = vector::cross(targetPlane.xAxis, v = targetPlane.yAxis)
+export fn hole(@solid, face, holeBottom, holeBody, holeType, cutAt) {
+  toCut = startSketchOn(solid, normalToFace=face, alignAxis = -Y)
+    |> sketchHoleProfile(bottom = holeBottom, body = holeBody, holeType, shift = cutAt[0])
 
-  tn = cross(v1 = conventionalAxisV2, v2 = targetPlaneNormal)
-  targetNormal = [
-    tn[0]: number(mm),
-    tn[1]: number(mm),
-    tn[2]: number(mm)
-  ]: Point3d
-  dotProd = vector::dot(vector::normalize(targetPlaneNormal), v =   vector::normalize(conventionalAxisV2)): number(_)
-  rot = if vector::magnitude(targetNormal) == 0 {
-    if acos(dotProd) == 180deg {
-      { axis = [0, 1, 0], angle = 180deg }
-    } else {
-      { axis = [1, 0, 0], angle = 0 }
-    }
-  } else {
-    {
-      axis = targetNormal,
-      angle = acos(dotProd)
-    }
-  }
-  return rot
+  drilled = revolveHole(toCut.sk, edge = toCut.d)
+  return subtract(solid, tools = [drilled])
 }
 
-export fn hole(@solid, face, hole, cutAt) {
-  targetPlane = planeOf(solid, face)
-  rot = rotateToFace(solid, face)
-
-  toCut = hole
-    |> revolveHole()
-    |> translate(xyz = targetPlane.origin)
-    |> rotate(axis = rot.axis, angle = rot.angle)
-    // This translate is y and z because the hole is sketched along the x axis of the plane
-    |> translate(y = cutAt[0], z = cutAt[1], global = false)
-  return subtract(solid, tools = [toCut])
-  // return solid
+fn cutRect(@solid, face) {
+  return startSketchOn(solid, normalToFace = face, alignAxis = X)
+  |> startProfile(at = [0, 0])
+  |> yLine(length = -100)
 }
 
-export fn holesLinear(@solid, face, hole, cutAt, instances, distance, axis) {
-
-  targetPlane = planeOf(solid, face)
-  rot = rotateToFace(solid, face)
-  firstHole = hole
-    |> revolveHole()
-    |> translate(xyz = targetPlane.origin)
-    |> rotate(axis = rot.axis, angle = rot.angle)
-    // This translate is y and z because the hole is sketched along the x axis of the plane
-    |> translate(y = cutAt[0], z = cutAt[1], global = false)
-
-  toCut = patternLinear3d(firstHole, instances, distance, axis = [axis[0], axis[1], 0], useOriginal = false)
-  // return subtract(solid, tools = toCut)
-  return toCut
-}
-
-myHole = holeProfile(bottom = flat(), body = blind(depth = 4, diameter = 0.2), holeType = countersink(diameter = 5, angle = 88deg))
-cubeLen = 90
+cubeLen = 20
 bigCube = startSketchOn(XY)
   |> startProfile(at = [-cubeLen / 2, -cubeLen / 2 + 10])
   |> line(end = [cubeLen, 0], tag = $a)
@@ -207,12 +155,11 @@ bigCube = startSketchOn(XY)
   |> extrude(length = cubeLen, symmetric = true)
   |> translate(x = 5)
   |> rotate(axis = [1, 1, 0], angle = 45, global = true)
-  // |> hole(face = a, cutAt = [1, 1], hole = myHole)
-  |> holesLinear(
-    face = a,
-    cutAt = [1, 1], 
-    hole = myHole,
-    instances = 4,
-    distance = 10,
-    axis = [0, 1]
+  |> hole(
+    face = END,
+    cutAt = [-3, 1], 
+    holeBottom = flat(),
+    holeBody = blind(depth = 4, diameter = 0.2),
+    holeType = countersink(diameter = 5, angle = 88deg),
   )
+

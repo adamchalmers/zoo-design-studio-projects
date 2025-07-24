@@ -99,7 +99,9 @@ up
 
 // Actually defining a hole
 
-export fn sketchHoleProfile(@sketchOn, bottom, body, holeType, shift) {
+export fn sketchHoleProfile(@sketchOn, holeBottom, holeBody, holeType, shift) {
+  body = holeBody
+  bottom = holeBottom
   // Calculate the drill bit height
   radius = body.diameter / 2
   theta = bottom.drillBitAngle / 2
@@ -124,15 +126,17 @@ export fn sketchHoleProfile(@sketchOn, bottom, body, holeType, shift) {
     return {sk, d}
 }
 
-export fn revolveHole(@holeProfile, edge) {
+fn revolveHole(@holeProfile, edge) {
   return holeProfile
     |> revolve(axis = edge)
     |> appearance(color = "#ff0000")
 }
 
 export fn hole(@solid, face, holeBottom, holeBody, holeType, cutAt) {
-  toCut = startSketchOn(solid, normalToFace=face, alignAxis = -Y)
-    |> sketchHoleProfile(bottom = holeBottom, body = holeBody, holeType, shift = cutAt[0])
+  intoSolid = startSketchOn(solid, normalToFace = face, alignAxis = -Y, normalOffset = cutAt[1])
+  toCut = sketchHoleProfile(
+    intoSolid, holeBottom, holeBody, holeType, shift = -cutAt[0],
+  )
 
   drilled = revolveHole(toCut.sk, edge = toCut.d)
   return subtract(solid, tools = [drilled])
@@ -157,7 +161,7 @@ bigCube = startSketchOn(XY)
   |> rotate(axis = [1, 1, 0], angle = 45, global = true)
   |> hole(
     face = END,
-    cutAt = [-3, 1], 
+    cutAt = [14, 0], 
     holeBottom = flat(),
     holeBody = blind(depth = 4, diameter = 0.2),
     holeType = countersink(diameter = 5, angle = 88deg),

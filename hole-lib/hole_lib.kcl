@@ -171,7 +171,7 @@ export fn hole(@solid, face, hole, cutAt) {
 
   toCut = hole
     |> revolveHole()
-    |> translate(x = targetPlane.origin[0], y = targetPlane.origin[1], z = targetPlane.origin[2])
+    |> translate(xyz = targetPlane.origin)
     |> rotate(axis = rot.axis, angle = rot.angle)
     // This translate is y and z because the hole is sketched along the x axis of the plane
     |> translate(y = cutAt[0], z = cutAt[1], global = false)
@@ -179,25 +179,24 @@ export fn hole(@solid, face, hole, cutAt) {
   // return solid
 }
 
-export fn holes(@solid, face, holeProfiles, cutAt) {
-  rot = rotateToFace(solid, face, cutAt)
-  mag = magnitude(rot.translateDist)
-  x = (rot.targetPlaneNormal[0] * mag): number(mm)
-  y = (rot.targetPlaneNormal[1] * mag): number(mm)
-  z = (rot.targetPlaneNormal[2] * mag): number(mm)
-  ts = 1
-  toCut = holeProfiles
-    |> map(f = fn(@holeProfile) {
-      return revolveHole(holeProfile)
-        // Translate to the origin of the plane
-        |> translate(x = x * ts, y = y * ts, z = z * ts)
-        |> rotate(axis = rot.axis, angle = rot.angle)
-    })
+export fn holesLinear(@solid, face, hole, cutAt, instances, distance, axis) {
+
+  targetPlane = planeOf(solid, face)
+  rot = rotateToFace(solid, face)
+  firstHole = hole
+    |> revolveHole()
+    |> translate(xyz = targetPlane.origin)
+    |> rotate(axis = rot.axis, angle = rot.angle)
+    // This translate is y and z because the hole is sketched along the x axis of the plane
+    |> translate(y = cutAt[0], z = cutAt[1], global = false)
+
+  toCut = patternLinear3d(firstHole, instances, distance, axis = [axis[0], axis[1], 0], useOriginal = false)
   // return subtract(solid, tools = toCut)
-  return solid
+  return toCut
 }
 
-cubeLen = 9
+myHole = holeProfile(bottom = flat(), body = blind(depth = 4, diameter = 0.2), holeType = countersink(diameter = 5, angle = 88deg))
+cubeLen = 90
 bigCube = startSketchOn(XY)
   |> startProfile(at = [-cubeLen / 2, -cubeLen / 2 + 10])
   |> line(end = [cubeLen, 0], tag = $a)
@@ -208,14 +207,12 @@ bigCube = startSketchOn(XY)
   |> extrude(length = cubeLen, symmetric = true)
   |> translate(x = 5)
   |> rotate(axis = [1, 1, 0], angle = 45, global = true)
-  |> hole(face = a, cutAt = [1, 1], hole = holeProfile(bottom = flat(), body = blind(depth = 4, diameter = 4), holeType = countersink(diameter = 5, angle = 88deg)))
-
-bigCube2 = startSketchOn(XY)
-  |> startProfile(at = [-cubeLen / 2, -cubeLen / 2])
-  |> line(end = [cubeLen, 0], tag = $a2)
-  |> line(end = [0, cubeLen], tag = $b2)
-  |> line(end = [-cubeLen, 0], tag = $c2)
-  |> line(end = [0, -cubeLen], tag = $d2)
-  |> close()
-  |> extrude(length = cubeLen, symmetric = true)
-  |> hole(face = a2, hole = holeProfile(bottom = flat(), body = blind(depth = 2, diameter = 4), holeType = counterbore(diameter = 5, depth = 1)), cutAt = [0, 0])
+  // |> hole(face = a, cutAt = [1, 1], hole = myHole)
+  |> holesLinear(
+    face = a,
+    cutAt = [1, 1], 
+    hole = myHole,
+    instances = 4,
+    distance = 10,
+    axis = [0, 1]
+  )

@@ -1,0 +1,30 @@
+import flat, sketchHoleProfile, revolveHole, countersink, blind from "hole_lib.kcl"
+
+sketch001 = startSketchOn(XY)
+profile001 = circle(sketch001, center = [0, 0], radius = 5)
+cylinder = extrude(profile001, length = 10)
+
+// Most users won't need to use these functions, but if you want to do something
+// unusual, e.g. drilling a hole into a nonplanar surface, then our simple
+// helper functions won't suffice.
+// 
+// For those users, you can use the powerful underlying primitives instead of
+// the convenient helpers. We encourage power users to make their own
+// helpers from our primitives, helpers that will perfectly suit their needs.
+
+// Define the cross-section of the hole
+holeProfile = sketchHoleProfile(
+  startSketchOn(-XY),
+  holeBottom = flat(),
+  holeBody = blind(depth = 4, diameter = 0.2),
+  holeType = countersink(diameter = 5, angle = 88deg),
+  shift = 0
+)
+
+// Revolve the cross section to make the proper drilled hole
+revolveHole(holeProfile.profile, edge = holeProfile.axis)
+// Move the hole to the position in space you want it.
+// This way it intersects the nonplanar face exactly where we want.
+|> translate(z = 3, y = 5.04)
+// Subtract it from the target solid
+|> subtract(cylinder, tools = [%])

@@ -158,6 +158,13 @@ export fn hole(@solid, face, holeBottom, holeBody, holeType, cutAt) {
   return subtract(solid, tools = [drilled])
 }
 
+export fn holes(@solid, face, holeBottom, holeBody, holeType, cutsAt) {
+  drilled = map(cutsAt, f = fn(@cutAt) {
+    return holeGeometry(solid, face, holeBottom, holeBody, holeType, cutAt)
+  })
+  return subtract(solid, tools = drilled)
+}
+
 export fn holesLinear(@solid, face, holeBottom, holeBody, holeType, cutAt, instances, distance, axis) {
 drilled = holeGeometry(solid, face, holeBottom, holeBody, holeType, cutAt)
 |> patternLinear3d(instances, distance, axis)

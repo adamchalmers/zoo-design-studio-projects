@@ -1,4 +1,4 @@
-import flat, countersink, blind, hole from "hole_lib.kcl"
+import drill, countersink, blind, hole from "hole_lib.kcl"
 
 cubeLen = 20
 bigCube = startSketchOn(XY)
@@ -16,7 +16,7 @@ hole(
   bigCube,
   face = a,
   cutAt = [0, 10],          
-  holeBottom = flat(),
-  holeBody = blind(depth = 4, diameter = 0.2),
+  holeBottom = drill(pointAngle = 60deg),
+  holeBody = blind(depth = 4, diameter = 4),
   holeType = countersink(diameter = 5, angle = 88deg),
 )

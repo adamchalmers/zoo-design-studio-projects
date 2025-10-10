@@ -1,0 +1,52 @@
+radius = 4
+height = 60
+bumpStart = 20
+bumpHeight = 10
+bumpOffset = 1
+
+bitOffset = 1
+bitHeight = 3
+
+body = startSketchOn(XY)
+  |> polygon(radius, numSides = 6, center = [0, 0])
+  |> extrude(length = height)
+
+bump = startSketchOn(offsetPlane(XY, offset = bumpStart))
+  |> polygon(radius = radius + bumpOffset, numSides = 6, center = [0, 0])
+  |> extrude(length = bumpHeight)
+
+bit = startSketchOn(offsetPlane(XY, offset = height))
+  |> polygon(radius = radius + bumpOffset, numSides = 6, center = [0, 0])
+  |> extrude(length = bitHeight)
+
+fn hexPyramid(radius, height) {
+  numSides = 6
+  bottom = startSketchOn(XY)
+    |> polygon(radius, numSides, center = [0, 0])
+  top = startSketchOn(offsetPlane(XY, offset = height))
+    |> polygon(radius = 0.3, numSides, center = [0, 0])
+
+  return loft([bottom, top])
+}
+
+endOfBumpPyramid = hexPyramid(radius = radius + bumpOffset, height = 3) |> rotate(axis = X, angle = 180deg) |> translate(z = -bumpStart)
+
+bitPyramid = hexPyramid(radius = radius + bumpOffset, height = 2)
+  |> translate(z = height + bitHeight)
+
+basePyramid = hexPyramid(radius, height = 2)
+  |> rotate(axis = X, angle = 180deg)
+
+fudge = 0.74
+screwThread = startSketchOn(XZ)
+  |> circle(center = [5, 0], radius = 0.4)
+  |> sweep(path = helix(
+       angleStart = 0,
+       ccw = true,
+       revolutions = 10,
+       length = height - bumpStart,
+       radius = 4,
+       axis = Z,
+     ))
+  |> scale(x = fudge, y = fudge)
+  |> translate(z = bumpStart)

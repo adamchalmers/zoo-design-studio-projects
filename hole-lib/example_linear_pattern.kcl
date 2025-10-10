@@ -17,7 +17,7 @@ holesToCut = holeGeometry(
   face = a,
   cutAt = [-4, 0],
   holeBottom = flat(),
-  holeBody = blind(depth = 4, diameter = 0.2),
+  holeBody = blind(depth = 4, diameter = 3.4),
   holeType = countersink(diameter = 5, angle = 88deg),
 )
 |> patternLinear3d(instances = 3, distance = 5.4, axis = [1, 0, 0])

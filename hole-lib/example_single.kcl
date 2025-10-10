@@ -16,7 +16,7 @@ hole(
   bigCube,
   face = a,
   cutAt = [0, 10],          
-  holeBottom = drill(pointAngle = 60deg),
-  holeBody = blind(depth = 4, diameter = 4),
+  holeBottom = drill(pointAngle = 110deg),
+  holeBody = blind(depth = 1, diameter = 4),
   holeType = countersink(diameter = 5, angle = 88deg),
 )

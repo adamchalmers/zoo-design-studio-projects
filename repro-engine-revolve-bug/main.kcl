@@ -1,4 +1,0 @@
-a = [1in, 0, 0]
-b = [0, 1in, 0]
-c = vector::cross(a, v = b)
-q = vector::cross(a, v = c)

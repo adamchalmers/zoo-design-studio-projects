@@ -1,7 +1,8 @@
 [settings.meta]
-id = "1c0a63a6-515b-4d42-89e7-b9566e4bf832"
+id = "5ad9dda7-3e31-4906-a8a9-256f1dae22c7"
 
-[settings.app]
+[settings.app.appearance]
+color = 201.0
 
 [settings.modeling]
 

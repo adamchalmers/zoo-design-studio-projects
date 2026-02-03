@@ -1,0 +1,38 @@
+n = 4 // number of rows/columns
+width = 1 // width of one square
+gap = width * 0.5 // gap between squares
+spacing = width + gap // amount to shift each square over
+height = 10
+baseHeight = 1
+
+// total width of the entire shape, across all squares
+totalWidth = n * width + (n - 1) * gap
+
+fn square(length, at, offset) {
+  return startSketchOn(offsetPlane(XY, offset))
+    |> startProfile(at = [
+         at[0] - (totalWidth / 2),
+         at[1] - (totalWidth / 2)
+       ])
+    |> xLine(length)
+    |> yLine(length)
+    |> xLine(length = -length)
+    |> yLine(length = -length)
+    |> close()
+}
+
+fn tube(@cellNum) {
+  row = rem(cellNum, divisor = n)
+  column = floor(cellNum / n)
+  at = [row * spacing, column * spacing]
+  // Set the colours based on which cell of the grid is being rendered.
+  r = 10 + (row * 10)
+  b = 10 + (column * 10)
+  g = 40
+  return square(length = width, at, offset = 0)
+    |> extrude(length = height, twistAngle = 90deg, twistAngleStep = 30deg)
+    |> appearance(color = appearance::hexString([r, g, b]))
+}
+
+tubes = map([0 ..< n * n], f = tube)
+base = square(length = totalWidth, at = [0, 0], offset = -baseHeight) |> extrude(length = baseHeight)

@@ -21,18 +21,37 @@ fn square(length, at, offset) {
     |> close()
 }
 
+fn colorFor(row, column) {
+  r = 10 + row * 10
+  b = 10 + column * 10
+  g = 40
+  return appearance::hexString([r, g, b])
+}
+
+fn ease(t) {
+  return 3 * pow(t, exp = 2) - (2 * pow(t, exp = 3))
+}
+
 fn tube(@cellNum) {
   row = rem(cellNum, divisor = n)
   column = floor(cellNum / n)
   at = [row * spacing, column * spacing]
-  // Set the colours based on which cell of the grid is being rendered.
-  r = 10 + (row * 10)
-  b = 10 + (column * 10)
-  g = 40
-  return square(length = width, at, offset = 0)
-    |> extrude(length = height, twistAngle = 90deg, twistAngleStep = 30deg)
-    |> appearance(color = appearance::hexString([r, g, b]))
+
+  samples = 10
+  fn tubeSample(@i) {
+    theta = 90deg / samples * i
+    sq = square(length = width, at, offset = height / samples * i)
+    return sq
+      |> rotate(axis = Z, angle = theta, global = true)
+  }
+  squares = [0..<samples]
+    |> map(f = tubeSample)
+
+  // return loft(squares)
+  // |> appearance(color = colorFor(row, column))
+  return 1
 }
 
 tubes = map([0 ..< n * n], f = tube)
-base = square(length = totalWidth, at = [0, 0], offset = -baseHeight) |> extrude(length = baseHeight)
+base = square(length = totalWidth, at = [0, 0], offset = -baseHeight)
+  |> extrude(length = baseHeight)

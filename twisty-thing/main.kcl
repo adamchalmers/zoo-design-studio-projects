@@ -28,28 +28,35 @@ fn colorFor(row, column) {
   return appearance::hexString([r, g, b])
 }
 
-fn ease(t) {
-  return 3 * pow(t, exp = 2) - (2 * pow(t, exp = 3))
+// Custom rotation function for easing in/out.
+// Basically, this is smaller at the top/bottom of each tube, and bigger in the middle.
+fn ease(@t) {
+  return if t < 0.5 {
+    8 * pow(t, exp = 4)
+  } else {
+    1 - (8 * pow(1 - t, exp = 4))
+  }
 }
 
 fn tube(@cellNum) {
   row = rem(cellNum, divisor = n)
   column = floor(cellNum / n)
-  at = [row * spacing, column * spacing]
 
   samples = 10
+
+  // Sketch a cross-section of the tube.
+  // 'i' determines how high up the tube we're sampling, which affects its rotation.
   fn tubeSample(@i) {
-    theta = 90deg / samples * i
-    sq = square(length = width, at, offset = height / samples * i)
+    theta = 90deg * ease(i / (samples - 1))
+    sq = square(length = width, at = [row * spacing, column * spacing], offset = height / samples * i)
     return sq
       |> rotate(axis = Z, angle = theta, global = true)
   }
-  squares = [0..<samples]
-    |> map(f = tubeSample)
 
-  // return loft(squares)
-  // |> appearance(color = colorFor(row, column))
-  return 1
+  return [0..<samples]
+    |> map(f = tubeSample)
+    |> loft()
+    |> appearance(color = colorFor(row, column))
 }
 
 tubes = map([0 ..< n * n], f = tube)

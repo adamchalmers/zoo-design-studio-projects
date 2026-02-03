@@ -38,16 +38,47 @@ fn ease(@t) {
   }
 }
 
+// This is a *weight* (twist density), not a 0..1 easing curve.
+// Near 0 at both ends, peaked in the middle.
+fn twistWeight(@t) {
+  return if t < 0.5 {
+    32 * pow(t, exp = 3)
+  } else {
+    32 * pow(1 - t, exp = 3)
+  }
+}
+
+// Discrete cumulative integral of twistWeight() over [0,1] using 'samples' steps.
+// Returns normalized partial sum up to index i, so result is in [0,1].
+fn integratedEase(@i, samples) {
+  indices = [0 ..< samples]
+
+  values = map(indices, f = fn(@j) {
+    t = j / (samples - 1)
+    return twistWeight(t)
+  })
+
+  partial = reduce(indices, initial = 0, f = fn(@j, accum) {
+    return if j <= i { accum + values[j] } else { accum }
+  })
+
+  total = reduce(values, initial = 0, f = fn(@v, accum) {
+    return accum + v
+  })
+
+  return partial / total
+}
+
 fn tube(@cellNum) {
   row = rem(cellNum, divisor = n)
   column = floor(cellNum / n)
 
-  samples = 10
+  samples = 20
 
   // Sketch a cross-section of the tube.
   // 'i' determines how high up the tube we're sampling, which affects its rotation.
   fn tubeSample(@i) {
-    theta = 90deg * ease(i / (samples - 1))
+    theta = 90deg * integratedEase(i, samples)
     sq = square(length = width, at = [row * spacing, column * spacing], offset = height / samples * i)
     return sq
       |> rotate(axis = Z, angle = theta, global = true)

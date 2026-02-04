@@ -1,0 +1,57 @@
+// Define the wood case
+
+w = 4
+base = startSketchOn(XY)
+  |> startProfile(at = [-w / 2, -w / 2])
+  |> xLine(length = w, tag = $a)
+  |> yLine(length = w, tag = $b)
+  |> xLine(length = -w, tag = $c)
+  |> yLine(length = -w, tag = $d)
+  |> extrude(length = 4)
+  |> fillet(
+       radius = 0.2,
+       tags = [
+         getOppositeEdge(a),
+         getOppositeEdge(b),
+         getOppositeEdge(c),
+         getOppositeEdge(d)
+       ],
+     )
+
+w2 = 3.5
+topBase = startSketchOn(base, face = END)
+  |> startProfile(at = [-w2 / 2, -w2 / 2])
+  |> xLine(length = w2, tag = $a2)
+  |> yLine(length = w2, tag = $b2)
+  |> xLine(length = -w2, tag = $c2)
+  |> yLine(length = -w2, tag = $d2)
+  |> close()
+  |> extrude(length = 0.4)
+  |> fillet(
+       radius = 0.2,
+       tags = [
+         getOppositeEdge(a2),
+         getOppositeEdge(b2),
+         getOppositeEdge(c2),
+         getOppositeEdge(d2)
+       ],
+     )
+  |> appearance(color = "#9a590e")
+
+sketch001 = startSketchOn(-XZ)
+profile001 = startProfile(sketch001, at = [-1.55, 4.35])
+  |> line(end = [0.9, 0.55])
+  |> line(end = [0.28, 0.81])
+  |> yLine(length = 0.29)
+  |> line(end = [-0.58, 0.99])
+  |> line(end = [-1.34, 0.66])
+  |> line(end = [-1.35, 4.94])
+  |> xLine(length = 1.25)
+  |> line(end = [1.32, -3.92])
+  |> line(endAbsolute = [0, 8.07])
+  |> yLine(length = -3.66)
+  |> line(endAbsolute = [profileStartX(%), profileStartY(%)])
+  |> close()
+|> revolve(axis = Y)
+|> appearance(color = "#ffa200", metalness = 90, roughness = 40)
+// Define the wood case

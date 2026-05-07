@@ -1,0 +1,21 @@
+cube0 = startSketchOn(XY)
+  |> rectangle(width = 10, height = 10, center = [0, 0])
+  |> extrude(length = 10)
+  |> appearance(color = "#da7333", roughness = 50, metalness = 90)
+
+cube1 = startSketchOn(offsetPlane(XY, offset = 2))
+  |> rectangle(width = 10, height = 10, center = [4, 2])
+  |> extrude(length = 10)
+  |> appearance(color = "#da4333", roughness = 50, metalness = 90)
+
+final = subtract([cube0], tools = [cube1])
+|> fillet(radius = 1, legacyAlgorithm = true, tags = [
+edgeId(index = 0),
+edgeId(index = 1),
+edgeId(index = 12),
+edgeId(index = 20),
+edgeId(index = 8),
+edgeId(index = 7),
+edgeId(index = 5),
+])
+

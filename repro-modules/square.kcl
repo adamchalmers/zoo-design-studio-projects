@@ -1,0 +1,22 @@
+sketch001 = sketch(on = XY) {
+  line1 = line(start = [var -1.18mm, var 0.94mm], end = [var 1.71mm, var 0.94mm])
+  line2 = line(start = [var 1.71mm, var 0.94mm], end = [var 1.71mm, var -1.71mm])
+  line3 = line(start = [var 1.71mm, var -1.71mm], end = [var -1.18mm, var -1.71mm])
+  line4 = line(start = [var -1.18mm, var -1.71mm], end = [var -1.18mm, var 0.94mm])
+  coincident([line1.end, line2.start])
+  coincident([line2.end, line3.start])
+  coincident([line3.end, line4.start])
+  coincident([line4.end, line1.start])
+  parallel([line2, line4])
+  parallel([line3, line1])
+  perpendicular([line1, line2])
+  horizontal(line3)
+  equalLength([line1, line2, line3, line4])
+  coincident([line4.end, ORIGIN])
+  vertical(line4)
+  horizontal(line1)
+}
+
+hidden001 = hide(sketch001)
+region001 = region(point = [0.8549999mm, -0.0025mm], sketch = sketch001)
+export cube = extrude(region001, length = 1)

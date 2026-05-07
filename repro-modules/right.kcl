@@ -1,0 +1,3 @@
+import cube from "square.kcl"
+
+export right = translate(clone(cube), x = 5)

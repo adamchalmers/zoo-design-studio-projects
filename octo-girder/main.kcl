@@ -1,0 +1,32 @@
+faceSideLen = 3
+faceThickness = 0.4
+armSideLen = 1
+armHeight = 10
+assemblyRadius = 9
+
+totalGirderHeight = faceThickness * 2 + armHeight
+
+fn square(@l) {
+  return rectangle(width = l, height = l, center = [0, 0])
+}
+
+fn girder() {
+  face = startSketchOn(XY)
+    |> square(faceSideLen)
+    |> extrude(length = faceThickness)
+
+  arm = startSketchOn(face, face = END)
+    |> rectangle(width = armSideLen, height = armSideLen, center = [0, 0])
+    |> extrude(length = armHeight)
+
+  faceTop = startSketchOn(arm, face = END)
+    |> square(faceSideLen)
+    |> extrude(length = faceThickness)
+
+  return faceTop
+}
+
+firstGirder = girder()
+  |> translate(x = assemblyRadius)
+
+patternCircular3d(firstGirder, center = [0, 0, 0], instances = 8, axis = Z)

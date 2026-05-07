@@ -1,0 +1,25 @@
+@settings(defaultLengthUnit = mm)
+
+sideLen = 1
+s2 = pow(sideLen, exp = 2)
+alpha = sqrt(s2 / 2)
+assert(sqrt(pow(alpha, exp = 2) + pow(alpha, exp = 2)), isEqualTo = sideLen)
+diameter = 2 * alpha + sideLen
+radius = diameter / 2
+theta = 360deg / 8
+wood = "#5b2a10"
+panelThickness = 0.15
+
+// Make it centered on 0, 0
+base = startSketchOn(XY)
+  |> polygon(radius, numSides = 8, center = [0, 0])
+  |> extrude(length = 1.5)
+  |> shell(faces = [END], thickness = panelThickness)
+  |> appearance(color = wood)
+
+windows = startSketchOn(offsetPlane(XZ, offset = 0.9))
+  |> rectangle(width = 0.5, height = 0.5, center = [0, 0.7])
+  |> extrude(length = 4 * panelThickness)
+  |> patternCircular3d(instances = 8, axis = Z, center = [0, 0, 0])
+
+overall = subtract([base], tools = windows)

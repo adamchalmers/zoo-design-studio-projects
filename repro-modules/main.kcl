@@ -1,0 +1,7 @@
+import left from "left.kcl"
+import right from "right.kcl"
+
+appearance(left, color = "#ff0000")
+appearance(right, color = "#00aaff")
+
+bottomLeft = clone(left) |> translate(y = 4) |> appearance(color = "#8c00ff")

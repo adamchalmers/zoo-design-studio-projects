@@ -1,0 +1,10 @@
+@settings(experimentalFeatures = allow)
+
+gear::helical(
+       nTeeth = 12,
+       module = 1.5,
+       pressureAngle = 14deg,
+       helixAngle = 25deg,
+       gearHeight = 5,
+     )
+  |> clone()

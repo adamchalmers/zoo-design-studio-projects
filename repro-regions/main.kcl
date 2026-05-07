@@ -1,0 +1,34 @@
+@settings(experimentalFeatures = allow)
+
+// silver cube with a hole
+cubeLen = 20
+cubeWithHole = startSketchOn(XY)
+  |> startProfile(at = [-cubeLen / 2, -cubeLen / 2 + 10])
+  |> line(end = [cubeLen, 0], tag = $a)
+  |> line(end = [0, cubeLen], tag = $b)
+  |> line(end = [-cubeLen, 0], tag = $c)
+  |> line(end = [0, -cubeLen], tag = $d)
+  |> close()
+  |> extrude(length = cubeLen, symmetric = true)
+  |> hole::hole(
+       face = END,
+       cutAt = [10, 0],
+       holeBottom = hole::drill(pointAngle = 110deg),
+       holeBody = hole::blind(depth = 5, diameter = 8),
+       holeType = hole::countersink(diameter = 14, angle = 100deg),
+     )
+
+// pink cube
+cube2 = startSketchOn(XY)
+  |> startProfile(at = [-cubeLen / 2, -cubeLen / 2 + 10])
+  |> line(end = [cubeLen, 0])
+  |> line(end = [0, cubeLen])
+  |> line(end = [-cubeLen, 0])
+  |> line(end = [0, -cubeLen])
+  |> close()
+  |> extrude(length = cubeLen, symmetric = true)
+  |> appearance(color = "#ff0099")
+  |> translate(y = -12)
+
+// cut pink cube away from silver cube
+subtract([cubeWithHole], tools = [cube2])

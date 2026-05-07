@@ -1,3 +1,4 @@
+@settings(defaultLengthUnit = mm, kclVersion = 1.0, sketchv1 = warn)
 // Define the wood case
 
 w = 4
@@ -36,7 +37,7 @@ topBase = startSketchOn(base, face = END)
          getOppositeEdge(d2)
        ],
      )
-  |> appearance(color = "#9a590e")
+  |> appearance(color = "#9a590e", opacity = 40)
 
 // Trophy cup (revolved)
 gold = "#ffa200"
@@ -69,7 +70,7 @@ profile002 = startProfile(sketch002, at = [3.14, 8.21])
   |> tangentialArc(end = [-0.1, -0.39])
   |> tangentialArc(end = [-0.07, -0.19])
 arm = startSketchOn(offsetPlane(XY, offset = 8.21))
-|> circle(center = [3.14, 0], radius = 0.09)
-|> sweep(path = profile002)
-|> patternCircular3d(instances = 2, axis = Z, center = [0, 0, 0])
-|> appearance(color = gold, metalness = 90, roughness = 40)
+  |> circle(center = [3.14, 0], radius = 0.09)
+  |> sweep(path = profile002)
+  |> patternCircular3d(instances = 2, axis = Z, center = [0, 0, 0])
+  |> appearance(color = gold, metalness = 90, roughness = 40)

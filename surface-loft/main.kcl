@@ -1,0 +1,22 @@
+// Loft a square, a circle, and another circle.
+sideLen = 4
+squareSketch = startSketchOn(XY)
+  |> startProfile(at = [0, sideLen])
+  |> line(end = [sideLen, 0])
+  |> line(end = [0, -sideLen])
+  |> line(end = [-sideLen, 0])
+  |> line(endAbsolute = [profileStartX(%), profileStartY(%)])
+  |> close()
+
+circleSketch0 = startSketchOn(offsetPlane(XY, offset = 2))
+  |> circle(center = [sideLen/2, sideLen/2], radius = 0.5)
+
+circleSketch1 = startSketchOn(offsetPlane(XY, offset = 5))
+  |> circle(center = [sideLen/2, sideLen/2], radius = 1)
+
+shape = loft([
+ squareSketch,
+ circleSketch0,
+ circleSketch1
+], bodyType = SURFACE)
+appearance(shape, color = "#da7333", roughness = 50, metalness = 90)

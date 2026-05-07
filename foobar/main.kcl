@@ -1,0 +1,9 @@
+sketch001 = sketch(on = XY) {
+  line1 = line(start = [var 10mm, var 10.5mm], end = [var 13.05mm, var 5.52mm])
+  fixed([line1.start, ORIGIN])
+  fixed([line1.start, [5, 5]])
+  line2 = line(start = [var 8.8mm, var 4.63mm], end = [var 14.78mm, var 3.33mm])
+}
+
+x = 22
+y = 33

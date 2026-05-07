@@ -1,0 +1,27 @@
+innerRad = 4
+thickness = 1
+height = 0.2
+innerTriangle = startSketchOn(XY)
+  |> polygon(radius = innerRad, numSides = 3, center = [0, 0])
+triangle = startSketchOn(XY)
+  |> polygon(radius = innerRad + thickness, numSides = 3, center = [0, 0])
+  |> subtract2d(tool = innerTriangle)
+  |> extrude(length = height)
+  |> appearance(color = "#61410a", metalness = 80, roughness = 50)
+
+tri2 = clone(triangle)
+  |> rotate(angle = 180deg, axis = Z)
+  |> appearance(color = "#61170a", metalness = 80, roughness = 50)
+  |> translate(z = height / 2)
+
+base = startSketchOn(-XY)
+  |> circle(radius = innerRad + thickness + 1, tag = $seg01)
+  |> extrude(length = 0.8, tagStart = $capStart001, tagEnd = $capEnd)
+  |> appearance(color = "#64553a", metalness = 80, roughness = 50)
+  
+fillet001 = fillet(base, tags = getCommonEdge(faces = [seg01, capStart001]), radius = 0.2)
+fillet002 = fillet(base, tags = getCommonEdge(faces = [seg01, capEnd]), radius = 0.2)
+
+hole = circle(startSketchOn(XY), center = [5.35, 0], radius = 0.2)
+  |> extrude(symmetric = true, length = 5)
+drilledBase = subtract(base, tools = hole)

@@ -1,0 +1,38 @@
+@settings(defaultLengthUnit = mm, kclVersion = 1.0, experimentalFeatures = allow)
+
+// Create the outer ring gear for the planetary gearset
+gear::ring(
+  nTeeth = 40,
+  module = 1.5,
+  pressureAngle = 14deg,
+  helixAngle = -25deg,
+  gearHeight = 5,
+)
+
+// Create a central sun gear using a small helical gear
+gear::helical(
+       nTeeth = 12,
+       module = 1.5,
+       pressureAngle = 14deg,
+       helixAngle = 25deg,
+       gearHeight = 5,
+     )
+  |> rotate(yaw = -4)
+
+// Create the helical planet gears
+numPlanetGears = 4
+helicalGear(
+       nTeeth = 12,
+       module = 1.5,
+       pressureAngle = 14deg,
+       helixAngle = -25deg,
+       gearHeight = 5,
+     )
+  |> translate(y = (12 + 12) / 2 * 1.5 + 2)
+  |> patternCircular3d(
+       instances = numPlanetGears,
+       axis = [0, 0, 1],
+       center = [0, 0, 0],
+       arcDegrees = 360deg,
+       rotateDuplicates = false,
+     )

@@ -20,15 +20,15 @@ square = sketch(on = XY) {
 
 // Sketch a circle, 10mm above the square.
 circle = sketch(on = offsetPlane(XY, offset = 10mm)) {
-  circle1 = circle(start = [var 0mm, var 1.5mm], center = [var 0mm, var 0mm])
+  circle1 = circle(start = [var 0mm, var 0.5mm], center = [var 0mm, var 0mm])
   coincident([circle1.center, ORIGIN])
   vertical([circle1.start, circle1.center])
-  distance([circle1.start, circle1.center]) == 1.5mm
+  distance([circle1.start, circle1.center]) == 0.5mm
 }
 
 // Pick out the right regions from each sketch.
 squareRegion = region(point = [0mm, -4.9975mm], sketch = square)
-circleRegion = region(point = [0mm, -1.4975mm], sketch = circle)
+circleRegion = region(point = [0mm, 0mm], sketch = circle)
 
 // Loft the square into the circle.
 wonkyPyramid = loft([squareRegion, circleRegion])

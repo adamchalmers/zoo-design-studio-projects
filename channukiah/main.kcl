@@ -1,0 +1,261 @@
+@settings(kclVersion = 2.0)
+
+candleWidth = 1.1mm
+branchGap = 1.95mm
+totalHeight = 17.74mm
+holeDepth = 0.7
+holeWidth = candleWidth * 0.7
+wellHeight = 1.24mm
+sketch001 = sketch(on = XZ) {
+  line1 = line(start = [var 0mm, var 0mm], end = [var 6.68mm, var 0mm])
+  coincident([line1.start, ORIGIN])
+
+  // The main spine
+  line2 = line(start = [var 0mm, var 0mm], end = [var 0mm, var 17.74mm])
+  coincident([line2.start, line1.start])
+  vertical([line2.end, ORIGIN])
+
+  line3 = line(start = [var 0mm, var 17.74mm], end = [var 0.55mm, var 17.74mm], construction = true)
+  coincident([line2.end, line3.start])
+  line4 = line(start = [var 0.55mm, var 17.74mm], end = [var 0.55mm, var 16mm])
+  coincident([line3.end, line4.start])
+
+  // Branch 1
+  line5 = line(start = [var 0.55mm, var 16mm], end = [var 2.29mm, var 17.74mm])
+  coincident([line4.end, line5.start])
+  line6 = line(start = [var 2.29mm, var 17.74mm], end = [var 3.39mm, var 17.74mm], construction = true)
+  coincident([line5.end, line6.start])
+  line7 = line(start = [var 3.39mm, var 17.74mm], end = [var 0.55mm, var 14.89mm])
+  coincident([line6.end, line7.start])
+  line8 = line(start = [var 0.55mm, var 14.89mm], end = [var 0.55mm, var 13.15mm])
+  coincident([line7.end, line8.start])
+
+  // Branch 2
+  line9 = line(start = [var 0.55mm, var 13.15mm], end = [var 5.14mm, var 17.74mm])
+  coincident([line8.end, line9.start])
+  line10 = line(start = [var 5.14mm, var 17.74mm], end = [var 6.24mm, var 17.74mm], construction = true)
+  coincident([line9.end, line10.start])
+  line11 = line(start = [var 6.24mm, var 17.74mm], end = [var 0.55mm, var 12.05mm])
+  coincident([line10.end, line11.start])
+  line12 = line(start = [var 0.55mm, var 12.05mm], end = [var 0.55mm, var 10.31mm])
+  coincident([line11.end, line12.start])
+
+  // Branch 3
+  line13 = line(start = [var 0.55mm, var 10.31mm], end = [var 7.98mm, var 17.74mm])
+  coincident([line12.end, line13.start])
+  line14 = line(start = [var 7.98mm, var 17.74mm], end = [var 9.08mm, var 17.74mm], construction = true)
+  coincident([line13.end, line14.start])
+  line15 = line(start = [var 9.08mm, var 17.74mm], end = [var 0.55mm, var 9.21mm])
+  coincident([line14.end, line15.start])
+  line16 = line(start = [var 0.55mm, var 9.21mm], end = [var 0.55mm, var 7.46mm])
+  coincident([line15.end, line16.start])
+
+  // Branch 4
+  line17 = line(start = [var 0.55mm, var 7.46mm], end = [var 10.83mm, var 17.74mm])
+  coincident([line16.end, line17.start])
+  line18 = line(start = [var 10.83mm, var 17.74mm], end = [var 11.93mm, var 17.74mm], construction = true)
+  coincident([line17.end, line18.start])
+  line19 = line(start = [var 11.93mm, var 17.74mm], end = [var 0.55mm, var 6.36mm])
+  coincident([line18.end, line19.start])
+
+  // Base
+  line20 = line(start = [var 0.55mm, var 6.36mm], end = [var 0.55mm, var 1.21mm])
+  coincident([line19.end, line20.start])
+  line21 = line(start = [var 0.55mm, var 1.21mm], end = [var 6.68mm, var 1.21mm])
+  coincident([line20.end, line21.start])
+  line22 = line(start = [var 6.68mm, var 1.21mm], end = [var 6.68mm, var 0mm])
+  coincident([line21.end, line22.start])
+  coincident([line22.end, line1.end])
+
+  // Construction geometry at the base of each branch.
+  line23 = line(start = [var 0.55mm, var 6.36mm], end = [var 0.55mm, var 7.46mm], construction = true)
+  coincident([line23.start, line20.start])
+  coincident([line23.end, line16.end])
+  line24 = line(start = [var 0.55mm, var 9.21mm], end = [var 0.55mm, var 10.31mm], construction = true)
+  coincident([line24.start, line15.end])
+  coincident([line24.end, line12.end])
+  line25 = line(start = [var 0.55mm, var 12.05mm], end = [var 0.55mm, var 13.15mm], construction = true)
+  coincident([line25.start, line11.end])
+  coincident([line25.end, line8.end])
+  line26 = line(start = [var 0.55mm, var 14.89mm], end = [var 0.55mm, var 16mm], construction = true)
+  coincident([line26.start, line7.end])
+  coincident([line26.end, line4.end])
+
+  // Candle holder parts at the end of each branch
+  horizontal(line3)
+  horizontal(line6)
+  horizontal(line10)
+  horizontal(line14)
+  horizontal(line18)
+  equalLength([line6, line10, line14, line18])
+  // All collinear
+  coincident([line3, line6])
+  coincident([line6, line10])
+  coincident([line10, line14])
+  coincident([line14, line18])
+  distance([line6.start, line6.end]) == candleWidth
+  distance([line3.start, line3.end]) == candleWidth / 2
+
+  // Gaps along the spine, between the branches
+  vertical(line4)
+  vertical(line8)
+  vertical(line12)
+  vertical(line16)
+  vertical(line20)
+  equalLength([line16, line12, line8, line4])
+
+  // All parallel
+
+  // Construction geometry within each branch, along the spine.
+  equalLength([line23, line24, line25, line26])
+  vertical(line23)
+  vertical(line24)
+  vertical(line25)
+  vertical(line26)
+  vertical(line22)
+
+  // Branches should be at 45 degree angle
+  equalLength([line26, line6])
+
+  // Define the base
+  horizontal([line1.end, ORIGIN])
+  horizontal(line21)
+  distance([line2.start, line2.end]) == 17.74mm
+  distance([line1.start, line1.end]) == 6.68mm
+  distance([line22.start, line22.end]) == 1.21mm
+  distance([line20.start, line20.end]) == 5.15mm
+  parallel([line5, line7])
+  parallel([line5, line9])
+  parallel([line5, line11])
+  parallel([line5, line13])
+  parallel([line5, line15])
+  parallel([line5, line17])
+  parallel([line5, line19])
+  line27 = line(start = [var 0.55mm, var 17.74mm], end = [var 0.55mm, var 18.98mm])
+  coincident([line27.start, line3.end])
+  line28 = line(start = [var 0.55mm, var 18.98mm], end = [var 0mm, var 18.98mm])
+  coincident([line27.end, line28.start])
+  line29 = line(start = [var 0mm, var 18.98mm], end = [var 0mm, var 17.74mm])
+  coincident([line28.end, line29.start])
+  coincident([line29.end, line2.end])
+  vertical(line29)
+  vertical(line27)
+  horizontal(line28)
+  equalLength([line29, line27])
+  equalLength([line3, line28])
+  distance([line29.start, line29.end]) == 1.24mm
+  line30 = line(start = [var 2.29mm, var 17.74mm], end = [var 2.29mm, var 18.98mm])
+  coincident([line30.start, line6.start])
+  line31 = line(start = [var 2.29mm, var 18.98mm], end = [var 3.39mm, var 18.98mm])
+  coincident([line30.end, line31.start])
+  line32 = line(start = [var 3.39mm, var 18.98mm], end = [var 3.39mm, var 17.74mm])
+  coincident([line31.end, line32.start])
+  coincident([line32.end, line6.end])
+  line33 = line(start = [var 5.14mm, var 17.74mm], end = [var 5.14mm, var 18.98mm])
+  coincident([line33.start, line9.end])
+  line34 = line(start = [var 5.14mm, var 18.98mm], end = [var 6.24mm, var 18.98mm])
+  coincident([line33.end, line34.start])
+  line35 = line(start = [var 6.24mm, var 18.98mm], end = [var 6.24mm, var 17.74mm])
+  coincident([line34.end, line35.start])
+  coincident([line35.end, line11.start])
+  line36 = line(start = [var 7.98mm, var 17.74mm], end = [var 7.98mm, var 18.98mm])
+  coincident([line36.start, line13.end])
+  line37 = line(start = [var 7.98mm, var 18.98mm], end = [var 9.08mm, var 18.98mm])
+  coincident([line36.end, line37.start])
+  line38 = line(start = [var 9.08mm, var 18.98mm], end = [var 9.08mm, var 17.74mm])
+  coincident([line37.end, line38.start])
+  coincident([line38.end, line15.start])
+  line39 = line(start = [var 10.83mm, var 17.74mm], end = [var 10.83mm, var 18.98mm])
+  coincident([line39.start, line17.end])
+  line40 = line(start = [var 10.83mm, var 18.98mm], end = [var 11.93mm, var 18.98mm])
+  coincident([line39.end, line40.start])
+  line41 = line(start = [var 11.93mm, var 18.98mm], end = [var 11.93mm, var 17.74mm])
+  coincident([line40.end, line41.start])
+  coincident([line41.end, line18.end])
+  horizontal(line31)
+  horizontal(line34)
+  horizontal(line37)
+  horizontal(line40)
+  equalLength([
+    line30,
+    line32,
+    line33,
+    line35,
+    line36,
+    line38,
+    line39,
+    line41
+  ])
+  vertical(line30)
+  vertical(line32)
+  vertical(line33)
+  vertical(line35)
+  vertical(line36)
+  vertical(line38)
+  vertical(line39)
+  vertical(line41)
+  equalLength([line31, line34, line37, line40])
+  equalLength([
+    line6,
+    line31,
+    line10,
+    line34,
+    line14,
+    line37,
+    line18,
+    line40
+  ])
+  distance([line30.start, line30.end]) == wellHeight
+}
+
+region001 = region(segments = [sketch001.line1, sketch001.line22])
+right = extrude(region001, length = 1)
+left = mirror3d(right, across = YZ)
+channukiah = union([right, left])
+  |> appearance(color = "#da4333", metalness = 90, roughness = 50)
+
+candleHole = sketch(on = XY) {
+  point1 = point(at = [var 5.65mm, var -0.54mm])
+  line1 = line(start = [var 5.31mm, var -0.88mm], end = [var 5.99mm, var -0.88mm])
+  line2 = line(start = [var 5.99mm, var -0.88mm], end = [var 5.99mm, var -0.2mm])
+  line3 = line(start = [var 5.99mm, var -0.2mm], end = [var 5.31mm, var -0.2mm])
+  line4 = line(start = [var 5.31mm, var -0.2mm], end = [var 5.31mm, var -0.88mm])
+  coincident([line1.end, line2.start])
+  coincident([line2.end, line3.start])
+  coincident([line3.end, line4.start])
+  coincident([line4.end, line1.start])
+  parallel([line2, line4])
+  parallel([line3, line1])
+  perpendicular([line1, line2])
+  horizontal(line3)
+  line5 = line(start = [var 5.31mm, var -0.88mm], end = [var 5.99mm, var -0.2mm], construction = true)
+  line6 = line(start = [var 5.99mm, var -0.88mm], end = [var 5.31mm, var -0.2mm], construction = true)
+  coincident([line5.start, line1.start])
+  coincident([line5.end, line2.end])
+  coincident([line6.start, line1.end])
+  coincident([line6.end, line4.start])
+  coincident([point1, line5])
+  coincident([point1, line6])
+  equalLength([line5, line6])
+  equalLength([line3, line4, line1, line2])
+  distance([line1.start, line1.end]) == holeWidth
+}
+
+hidden001 = hide(candleHole)
+
+// Define a cube shape, which we'll cut out from each branch,
+// for holding a candle.
+region002 = region(segments = [candleHole.line4, candleHole.line1])
+holeToCut = extrude(region002, length = holeDepth)
+  |> translate(x = 5.7, y = 0, z = totalHeight + wellHeight / 2)
+
+// Replicate the cube, for each branch.
+holesToCut = patternLinear3d(
+  holeToCut,
+  instances = 9,
+  distance = -(branchGap * 1.46),
+  axis = X,
+)
+
+// Cut it out of each branch.
+subtract(channukiah, tools = holesToCut)
